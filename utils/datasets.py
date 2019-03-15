@@ -39,14 +39,8 @@ class LoadImages:  # for inference
         img0 = cv2.imread(img_path)  # BGR
         assert img0 is not None, 'File Not Found ' + img_path
 
-        # Padded resize
-        img, _, _, _ = letterbox(img0, height=self.height)
-
-        # Normalize RGB
-        img = img[:, :, ::-1].transpose(2, 0, 1)
-        img = np.ascontiguousarray(img, dtype=np.float32)
-        img /= 255.0
-
+        img = img0_to_img(img0, height=self.height)
+        
         # cv2.imwrite(img_path + '.letterbox.jpg', 255 * img.transpose((1, 2, 0))[:, :, ::-1])  # save letterbox image
         return img_path, img, img0
 
@@ -234,6 +228,15 @@ def letterbox(img, height=416, color=(127.5, 127.5, 127.5)):  # resize a rectang
     img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # padded square
     return img, ratio, dw, dh
 
+def img0_to_img(img0, height):
+    # Padded resize
+    img, _, _, _ = letterbox(img0, height=height)
+
+    # Normalize RGB
+    img = img[:, :, ::-1].transpose(2, 0, 1)
+    img = np.ascontiguousarray(img, dtype=np.float32)
+    img /= 255.0
+    return img
 
 def random_affine(img, targets=None, degrees=(-10, 10), translate=(.1, .1), scale=(.9, 1.1), shear=(-2, 2),
                   borderValue=(127.5, 127.5, 127.5)):
