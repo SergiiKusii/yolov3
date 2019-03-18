@@ -12,6 +12,8 @@ if __name__ == '__main__':
     parser.add_argument('--img-size', type=int, default=32 * 13, help='size of each image dimension')
     parser.add_argument('--conf-thres', type=float, default=0.50, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.45, help='iou threshold for non-maximum suppression')
+    parser.add_argument('--coco-max-entity', type=int, default=80, help='Max entity from data/coco.names which will be drown on image')
+    parser.add_argument('--show-image', type=bool, default=False, help='Each frame will be shown')
     opt = parser.parse_args()
     print(opt)
 
@@ -27,14 +29,16 @@ if __name__ == '__main__':
                 save_images=True
             )
         if not opt.video == "":
-            detect(
+            detect_video(
                 opt.cfg,
                 opt.weights,
                 opt.video,
                 img_size=opt.img_size,
                 conf_thres=opt.conf_thres,
                 nms_thres=opt.nms_thres,
-                save_video=True
+                coco_max_entity=opt.coco_max_entity,
+                show_image=opt.show_image,
+                save_video=True,
             )
 
         if opt.images == "" and opt.video == "":

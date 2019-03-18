@@ -11,7 +11,7 @@ from models import *
 from utils.datasets import *
 from utils.utils import *
 
-def detect(
+def detect_video(
         cfg,
         weights,
         video_path,
@@ -19,8 +19,10 @@ def detect(
         img_size=416,
         conf_thres=0.3,
         nms_thres=0.45,
+        coco_max_entity=80,
         save_txt=True,
-        save_video=True
+        save_video=True,
+        show_image=False
 ):
     device = torch_utils.select_device()
     if not os.path.exists(output_folder):
@@ -58,16 +60,23 @@ def detect(
 
     plt.figure(1)
     handled = False
-    show_images = False
     frame_num = 0
     t_start = time.time()
+    frames_count = capture.get(cv2.CAP_PROP_FRAME_COUNT)
+    step_ms = 500
     while (capture.isOpened()):
         handled = True        
         t = time.time()
         frame_num = frame_num + 1
-        print('Frame %g: ' % (frame_num + 1), end='')
+        frame_sec = capture.get(cv2.CAP_PROP_POS_MSEC)
+        frame_precentage = capture.get(cv2.CAP_PROP_POS_AVI_RATIO)
+        print('Frame %g/%g (%gms %.5f pr): ' % (frame_num, frames_count, frame_sec, frame_precentage), end='')
 
         ret, frame = capture.read()
+
+        # if not frame_num % 10 == 0:
+        #     print("continue")
+        #     continue
 
         if not ret:
             break
@@ -98,6 +107,9 @@ def detect(
 
             # Draw bounding boxes and labels of detections
             for x1, y1, x2, y2, conf, cls_conf, cls in detections:
+                if cls > coco_max_entity:
+                    continue
+
                 if save_txt:  # Write to file
                     with open(output_name + '.txt', 'a') as file:
                         file.write('%g %g %g %g %g %g\n' %
@@ -112,7 +124,7 @@ def detect(
         dt = time.time() - t
         print('Done. (%.3fs)' % dt)
 
-        if show_images:
+        if show_image:
             plt.imshow(frame)
             plt.show()
             if cv2.waitKey(1) & 0xFF == ord('q'):
