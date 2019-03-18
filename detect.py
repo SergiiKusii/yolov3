@@ -13,6 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('--conf-thres', type=float, default=0.50, help='object confidence threshold')
     parser.add_argument('--nms-thres', type=float, default=0.45, help='iou threshold for non-maximum suppression')
     parser.add_argument('--coco-max-entity', type=int, default=80, help='Max entity from data/coco.names which will be drown on image')
+    parser.add_argument('--frame-step', type=int, default=0, help='Frame step for videofile in milliseconds. 0 - all frames')
     parser.add_argument('--show-image', type=bool, default=False, help='Each frame will be shown')
     opt = parser.parse_args()
     print(opt)
@@ -37,6 +38,7 @@ if __name__ == '__main__':
                 conf_thres=opt.conf_thres,
                 nms_thres=opt.nms_thres,
                 coco_max_entity=opt.coco_max_entity,
+                frame_step=opt.frame_step,
                 show_image=opt.show_image,
                 save_video=True,
             )

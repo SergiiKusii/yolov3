@@ -20,6 +20,7 @@ def detect_video(
         conf_thres=0.3,
         nms_thres=0.45,
         coco_max_entity=80,
+        frame_step=0,
         save_txt=True,
         save_video=True,
         show_image=False
@@ -63,14 +64,20 @@ def detect_video(
     frame_num = 0
     t_start = time.time()
     frames_count = capture.get(cv2.CAP_PROP_FRAME_COUNT)
-    step_ms = 500
+    current_step_ms = 0
     while (capture.isOpened()):
         handled = True        
         t = time.time()
-        frame_num = frame_num + 1
+        frame_num = capture.get(cv2.CAP_PROP_POS_FRAMES)
         frame_sec = capture.get(cv2.CAP_PROP_POS_MSEC)
         frame_precentage = capture.get(cv2.CAP_PROP_POS_AVI_RATIO)
         print('Frame %g/%g (%gms %.5f pr): ' % (frame_num, frames_count, frame_sec, frame_precentage), end='')
+
+        if current_step_ms > 0:
+            capture.set(cv2.CAP_PROP_POS_MSEC, current_step_ms)
+
+        if frame_step > 0:
+            current_step_ms = current_step_ms + frame_step
 
         ret, frame = capture.read()
 
