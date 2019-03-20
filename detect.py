@@ -15,6 +15,7 @@ if __name__ == '__main__':
     parser.add_argument('--coco-max-entity', type=int, default=80, help='Max entity from data/coco.names which will be drown on image')
     parser.add_argument('--frame-step', type=int, default=0, help='Frame step for videofile in milliseconds. 0 - all frames')
     parser.add_argument('--show-image', type=bool, default=False, help='Each frame will be shown')
+    parser.add_argument('--fisheye-undistort-image', type=bool, default=False, help='undistort fisheye video')
     opt = parser.parse_args()
     print(opt)
 
@@ -41,6 +42,7 @@ if __name__ == '__main__':
                 frame_step=opt.frame_step,
                 show_image=opt.show_image,
                 save_video=True,
+                fisheye_undistort_image = opt.fisheye_undistort_image
             )
 
         if opt.images == "" and opt.video == "":

@@ -23,8 +23,23 @@ def detect_video(
         frame_step=0,
         save_txt=True,
         save_video=True,
-        show_image=False
+        show_image=False,
+        fisheye_undistort_image=False
 ):
+
+    #### FOR undistort fisheye ####
+
+    K=np.array([[1.38921e+03, 0.00000e+00, 4.05560e+02],
+                [0.00000e+00, 5.90480e+02, 5.50170e+02],
+                [0.00000e+00, 0.00000e+00, 1.00000e+00]])
+    D=np.array([[-0.02861849],
+                [-0.00556976],
+                [ 0.05244409],
+                [-0.02797628]])
+    DIM=(int(1687*1.2), int(1172*1.2))
+
+    ################
+
     device = torch_utils.select_device()
     if not os.path.exists(output_folder):
         # shutil.rmtree(output_folder)  # delete output folder
@@ -54,6 +69,8 @@ def detect_video(
         int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
         int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
     )
+    if fisheye_undistort_image:
+        size = DIM
     codec = cv2.VideoWriter_fourcc(*'DIVX')
     output_name = str(Path(output_folder) / Path(video_path).name)
     print("Processing video " + video_path + " ...")
@@ -65,6 +82,7 @@ def detect_video(
     t_start = time.time()
     frames_count = capture.get(cv2.CAP_PROP_FRAME_COUNT)
     current_step_ms = 0
+
     while (capture.isOpened()):
         handled = True        
         t = time.time()
@@ -81,12 +99,12 @@ def detect_video(
 
         ret, frame = capture.read()
 
-        # if not frame_num % 10 == 0:
-        #     print("continue")
-        #     continue
-
         if not ret:
             break
+
+        if fisheye_undistort_image:
+            map1, map2 = cv2.fisheye.initUndistortRectifyMap(K, D, np.eye(3), K, DIM, cv2.CV_16SC2)
+            frame = cv2.remap(frame, map1, map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
 
         # Get detections
         im0 = frame
